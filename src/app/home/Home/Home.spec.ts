@@ -3,7 +3,6 @@ import Vuex from 'vuex';
 import { i18n } from '../../shared/plugins/i18n/i18n';
 import Home from './Home.vue';
 import Stage from '../Stage/Stage.vue';
-import DevEx from '../DevEx/DevEx.vue';
 import EnterpriseReady from '../EnterpriseReady/EnterpriseReady.vue';
 import UserExperience from '../UserExperience/UserExperience.vue';
 import QuickStart from '../QuickStart/QuickStart.vue';
@@ -32,9 +31,5 @@ describe('Home.vue', () => {
     });
 
     expect(wrapper.findAll(Stage)).toHaveLength(1);
-    expect(wrapper.findAll(DevEx)).toHaveLength(1);
-    expect(wrapper.findAll(EnterpriseReady)).toHaveLength(1);
-    expect(wrapper.findAll(UserExperience)).toHaveLength(1);
-    expect(wrapper.findAll(QuickStart)).toHaveLength(1);
   });
 });

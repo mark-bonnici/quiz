@@ -1,25 +1,17 @@
 <template>
   <div :class="$style.home">
     <stage :disable-particles="disableParticles" />
-    <dev-ex />
-    <enterprise-ready />
-    <user-experience />
-    <quick-start />
   </div>
 </template>
 
 <script lang="ts">
 import { mapState } from 'vuex';
 import Stage from '../Stage/Stage.vue';
-import DevEx from '../DevEx/DevEx.vue';
-import EnterpriseReady from '../EnterpriseReady/EnterpriseReady.vue';
-import UserExperience from '../UserExperience/UserExperience.vue';
-import QuickStart from '../QuickStart/QuickStart.vue';
 import { IState } from '../../state';
 
 export default {
   metaInfo: {
-    title: 'vue-starter - flexible, scalable, opinionated, fast',
+    title: 'Trivia 2019',
     meta: [
       {
         name: 'description',
@@ -70,10 +62,6 @@ export default {
   },
   components: {
     Stage,
-    DevEx,
-    EnterpriseReady,
-    UserExperience,
-    QuickStart,
   },
   computed: {
     ...mapState({

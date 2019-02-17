@@ -5,24 +5,30 @@
     <vue-grid>
       <vue-grid-row>
         <vue-grid-item class="vueGridItem">
-          <vue-headline level="1" :class="$style.title">vue-starter</vue-headline>
-          <div :class="$style.subTitle">
-            {{
-              $t(
-                'App.core.description' /* The most complete boilerplate for production-ready PWAs. With focus on performance, development speed, and best practices */,
-              )
-            }}
-          </div>
+          <div id="quiz">
+            <div v-if="introStage">
+              <vue-headline level="1" :class="$style.title">{{ title }}</vue-headline>
+              <div :class="$style.subTitle">
+                <p>Select the correct answer</p>
+              </div>
+              <button @click="startQuiz" :class="$style.button">Start Quiz</button>
+            </div>
 
-          <a
-            :class="$style.github"
-            href="https://github.com/devCrossNet/vue-starter"
-            target="_blank"
-            rel="noopener"
-            aria-label="github repository"
-          >
-            <vue-icon-github />
-          </a>
+            <div v-if="questionStage">
+              <question
+                :question="questions[currentQuestion]"
+                v-on:answer="handleAnswer"
+                :question-number="currentQuestion + 1"
+              ></question>
+            </div>
+
+            <div v-if="resultsStage">
+              <vue-headline level="1" :class="$style.title">
+                You got {{ correct }} right out of {{ questions.length }} questions.
+              </vue-headline>
+              <p :class="$style.title">Your percentage is {{ perc }}%.</p>
+            </div>
+          </div>
         </vue-grid-item>
       </vue-grid-row>
     </vue-grid>
@@ -34,11 +40,14 @@ import { CircleAnimation } from '../../shared/animations/CircleAnimation';
 import VueGrid from '../../shared/components/VueGrid/VueGrid.vue';
 import VueGridRow from '../../shared/components/VueGridRow/VueGridRow.vue';
 import VueGridItem from '../../shared/components/VueGridItem/VueGridItem.vue';
-import VueIconGithub from '../../shared/components/icons/VueIconGithub/VueIconGithub.vue';
 import VueHeadline from '../../shared/components/VueHeadline/VueHeadline.vue';
+import Question from '../../shared/components/Question/Question.vue';
+
+const fetch = require('node-fetch');
+const quizData = 'https://api.myjson.com/bins/btab6';
 
 export default {
-  components: { VueHeadline, VueIconGithub, VueGridItem, VueGridRow, VueGrid },
+  components: { VueHeadline, VueGridItem, VueGridRow, VueGrid, Question },
   props: {
     disableParticles: {
       type: Boolean,
@@ -46,10 +55,51 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      introStage: false,
+      questionStage: false,
+      resultsStage: false,
+      title: '',
+      questions: [],
+      currentQuestion: 0,
+      answers: [],
+      correct: 0,
+      perc: null,
+    };
+  },
+  created() {
+    fetch(quizData)
+      .then((res: any) => res.json())
+      .then((res: any) => {
+        this.title = res.title;
+        this.questions = res.questions;
+        this.introStage = true;
+      });
   },
   computed: {},
   methods: {
+    startQuiz() {
+      this.introStage = false;
+      this.questionStage = true;
+    },
+    handleAnswer(e: any) {
+      this.answers[this.currentQuestion] = e.answer;
+      if (this.currentQuestion + 1 === this.questions.length) {
+        this.handleResults();
+        this.questionStage = false;
+        this.resultsStage = true;
+      } else {
+        this.currentQuestion++;
+      }
+    },
+    handleResults() {
+      this.questions.forEach((a: any, index: any) => {
+        if (this.answers[index] === a.answer) {
+          this.correct++;
+        }
+      });
+      this.perc = ((this.correct / this.questions.length) * 100).toFixed(2);
+    },
     handleResize() {
       const canvas: HTMLCanvasElement = this.$refs.canvas;
       const stage: HTMLElement = this.$refs.stage;
@@ -90,10 +140,10 @@ export default {
   position: relative;
   text-align: center;
   color: $brand-text-color-inverse;
-  background: $secondary-1-100;
+  background: #233f61;
 
   @include mediaMin(tabletPortrait) {
-    min-height: 50vh;
+    min-height: 100vh;
   }
 }
 
@@ -106,13 +156,13 @@ export default {
   top: 0;
 
   @include mediaMin(tabletPortrait) {
-    min-height: 50vh;
+    min-height: 100vh;
   }
 }
 
 .title,
 .subTitle,
-.github {
+button {
   text-shadow: 0 5px 10px rgba(0, 0, 0, 0.33);
   position: relative;
 }
@@ -141,32 +191,43 @@ export default {
   }
 }
 
-.github {
-  font-size: $font-size-h1;
-  top: $space-unit * 17;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  display: inline-block;
-  background: $brand-bg-color;
-  transition: $button-transition;
-  transition-property: box-shadow, background-color;
-  color: $brand-link-color;
-  padding: $button-padding;
-
-  &:hover {
-    box-shadow: $button-active-shadow;
-  }
+button {
+  top: $space-unit * 30;
 
   @include mediaMin(tabletPortrait) {
-    top: $space-unit * 25;
+    top: $space-unit * 30;
   }
 
   @include mediaMin(tabletLandscape) {
-    top: $space-unit * 39;
+    top: $space-unit * 30;
   }
+  display: inline-block;
+  border: none;
+  padding: 2rem 4rem;
+  margin: 0;
+  text-decoration: none;
+  background: #20d8c7;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-size: 3rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background 250ms ease-in-out, transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
 
-  i {
-    height: $font-size-h1;
-    width: $font-size-h1;
-  }
+button:hover,
+button:focus {
+  background: #0053ba;
+}
+
+button:focus {
+  outline: 1px solid #fff;
+  outline-offset: -4px;
+}
+
+button:active {
+  transform: scale(0.99);
 }
 </style>
